@@ -1,7 +1,7 @@
 import { API_URL, VAPID_PUBLIC_KEY } from './config.js';
 import { VIRTUES, INTENTION, virtueOf } from './virtues.js';
 import {
-  MONTHS, WEEKDAYS, addDays, diffDays, dateParts, indexMarks, markOf, streakAt, dayInfo, buildText,
+  MONTHS, WEEKDAYS, addDays, diffDays, dateParts, indexMarks, markOf, streakAt, dayInfo, buildText, statsFor, monthCells,
 } from './logic.js';
 
 const $app = document.getElementById('app');
@@ -35,7 +35,7 @@ const errMsg = (e) => (ERRORS[e.code] ? ERRORS[e.code](e) : 'صارت مشكلة
 
 /* ---------- state ---------- */
 const S = {
-  view: 'loading', // loading | setup | login | home | admin | offline
+  view: 'loading', // loading | setup | login | home | profile | admin | offline
   token: ls.get('wird.token'),
   loginMembers: [],
   pickId: '',
@@ -146,7 +146,7 @@ function viewHome() {
   const done = members.filter((m) => markOf(S.idx, today, m.id) === 1).length;
   const pct = total ? Math.round((done / total) * 100) : 0;
   const p = dateParts(today);
-  let h = `<div class="bar-top"><span class="ltr">@${esc(meM?.handle ?? '')}</span><button class="link" data-act="logout">خروج</button></div>`;
+  let h = `<div class="bar-top"><button class="link who-btn" data-act="profile"><span class="ltr">@${esc(meM?.handle ?? '')}</span> · ملفّي</button><button class="link" data-act="logout">خروج</button></div>`;
 
   h += `<section class="hero"><span class="date num">${WEEKDAYS[p.wd]} ${p.d} ${MONTHS[p.m - 1]}</span>`;
   if (info.before) h += `<h1>الورد يبدأ يوم ${esc(cfg.start_date)}</h1>`;
@@ -207,6 +207,38 @@ function viewHome() {
   return h;
 }
 
+function viewProfile() {
+  const d = S.data; const cfg = d.config; const today = d.today;
+  const meM = d.members.find((m) => m.id === d.me);
+  const st = statsFor(S.idx, cfg.start_date, today, d.me);
+  const ym = S.pm || today.slice(0, 7);
+  const [y, mo] = ym.split('-').map(Number);
+  const prev = mo === 1 ? `${y - 1}-12` : `${y}-${String(mo - 1).padStart(2, '0')}`;
+  const next = mo === 12 ? `${y + 1}-01` : `${y}-${String(mo + 1).padStart(2, '0')}`;
+  const canPrev = `${prev}-31` >= cfg.start_date;
+  const canNext = next <= today.slice(0, 7);
+  let h = `<div class="bar-top"><button class="link" data-act="home">← الرئيسية</button><button class="link" data-act="logout">خروج</button></div>
+    <section class="hero"><span class="date">ملفّي</span><h1 class="ltr" style="direction:ltr;text-align:right">@${esc(meM?.handle ?? '')}</h1></section>`;
+  h += `<section class="stats">
+    <div><b class="num">${st.current}</b><span>متتالية الآن</span></div>
+    <div><b class="num">${st.best}</b><span>أطول مدّة</span></div>
+    <div><b class="num">${st.total}</b><span>يوم كمّلته</span></div>
+    <div><b class="num">${st.rate}%</b><span>المداومة</span></div></section>`;
+  h += `<section class="card"><div class="card-h"><button class="link" data-act="pm" data-ym="${next}"${canNext ? '' : ' disabled'}>›</button>
+    <b>${MONTHS[mo - 1]} ${y}</b><button class="link" data-act="pm" data-ym="${prev}"${canPrev ? '' : ' disabled'}>‹</button></div>
+    <div class="cal">${['إث', 'ثل', 'أر', 'خم', 'جم', 'سب', 'أح'].map((x) => `<span class="wd">${x}</span>`).join('')}`;
+  monthCells(ym).forEach((day) => {
+    if (!day) { h += '<span></span>'; return; }
+    const m = markOf(S.idx, day, d.me);
+    const off = day < cfg.start_date || day > today;
+    h += `<span class="day num${m === 1 ? ' on' : m === 2 ? ' rest' : ''}${off ? ' off' : ''}${day === today ? ' today' : ''}">${Number(day.slice(8))}</span>`;
+  });
+  h += '</div></section>';
+  h += '<p class="legend"><i class="on"></i> كمّلتِ <i class="rest"></i> يوم راحة</p>';
+  h += '<p class="quote">«أحبّ الأعمال إلى الله أدومها وإن قلّ» · متفق عليه</p>';
+  return h;
+}
+
 function viewAdmin() {
   const A = S.admin; const d = S.data;
   let h = '<div class="bar-top"><b>الأدمين</b><button class="link" data-act="home">رجوع</button></div>';
@@ -260,6 +292,7 @@ function render() {
   else if (S.view === 'offline') $app.innerHTML = '<div class="state">ما نجمتش نوصل للسيرفر. تأكدي من الإنترنت وعاودي.<br><br><button class="ghost" data-act="retry">عاودي</button></div>';
   else if (S.view === 'login') $app.innerHTML = viewLogin();
   else if (S.view === 'home') $app.innerHTML = viewHome();
+  else if (S.view === 'profile') $app.innerHTML = viewProfile();
   else if (S.view === 'admin') $app.innerHTML = viewAdmin();
 }
 
@@ -361,6 +394,8 @@ $app.addEventListener('click', async (e) => {
   else if (a === 'copy') copyOut();
   else if (a === 'admin') openAdmin();
   else if (a === 'home') { S.view = 'home'; render(); }
+  else if (a === 'profile') { S.view = 'profile'; S.pm = null; render(); window.scrollTo(0, 0); }
+  else if (a === 'pm') { S.pm = el.dataset.ym; render(); }
   else if (a === 'retry') boot();
   else if (a === 'add-range') { A.draft.ranges.push({ f: null, t: null }); render(); }
   else if (a === 'del-range') { A.draft.ranges.splice(+el.dataset.i, 1); render(); }

@@ -130,3 +130,21 @@ pre.out{unicode-bidi:plaintext;text-align:start;margin:0;padding:14px 16px;white
 .niya.done{animation:rise .4s ease-out}
 .row{transition:background .2s}
 @media (prefers-reduced-motion:reduce){.cta.done,.big-fl.hot svg,.niya.done{animation:none}}
+
+.who-btn{font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.stats div{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:2px}
+.stats b{font-family:var(--f-display);font-size:34px;line-height:1.1;color:var(--rose)}
+.stats span{color:var(--muted);font-size:13px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:14px 12px;text-align:center}
+.cal .wd{font-size:11px;color:var(--muted)}
+.cal .day{aspect-ratio:1;display:grid;place-items:center;border-radius:50%;font-size:13px;color:var(--ink);background:var(--bg)}
+.cal .day.on{background:var(--done);color:#fff}
+.cal .day.rest{background:var(--rest);color:#fff}
+.cal .day.off{opacity:.35}
+.cal .day.today{outline:2px solid var(--rose);outline-offset:1px}
+.card-h button.link:disabled{opacity:.3;cursor:default}
+.legend{display:flex;gap:14px;align-items:center;margin:0;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-inline-start:4px}
+.legend i.on{background:var(--done)}.legend i.rest{background:var(--rest)}
+.quote{margin:4px 0 0;text-align:center;color:var(--muted);font-size:13px;font-family:var(--f-display)}

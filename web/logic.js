@@ -73,3 +73,26 @@ export function buildText({ config, members, idx, today, date, withStreak = true
   }
   return lines.join('\n');
 }
+
+/** Personal stats since the start date. Rest days keep a run alive without counting; today pending does not break it. */
+export function statsFor(idx, startDate, today, id) {
+  let total = 0; let rest = 0; let best = 0; let run = 0; let elapsed = 0;
+  for (let d = startDate; d <= today; d = addDays(d, 1)) {
+    const m = markOf(idx, d, id);
+    if (m === 1) { total++; run++; elapsed++; if (run > best) best = run; }
+    else if (m === 2) rest++;
+    else if (d !== today) { run = 0; elapsed++; }
+  }
+  return { total, rest, best, current: streakAt(idx, startDate, today, id, today), rate: elapsed ? Math.round((total / elapsed) * 100) : 0 };
+}
+
+/** Cells for a month grid (Monday first): leading nulls, then every date of the month. */
+export function monthCells(ym) {
+  const [y, m] = ym.split('-').map(Number);
+  const first = `${ym}-01`;
+  const lead = (dateParts(first).wd + 6) % 7;
+  const n = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const cells = Array(lead).fill(null);
+  for (let i = 1; i <= n; i++) cells.push(`${ym}-${String(i).padStart(2, '0')}`);
+  return cells;
+}
