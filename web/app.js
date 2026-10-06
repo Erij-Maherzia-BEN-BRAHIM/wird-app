@@ -118,6 +118,22 @@ function rowHtml(m, today, cfg, me) {
     <span class="fl num${st ? ' hot' : ''}">${ICON_FLAME}${n}</span></div>`;
 }
 
+/* ---------- install banner (browsers never show a popup by themselves) ---------- */
+let installEvt = null;
+const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installEvt = e; if (S.view === 'home') render(); });
+window.addEventListener('appinstalled', () => { installEvt = null; if (S.view === 'home') render(); });
+
+function installBanner() {
+  if (isStandalone() || ls.get('wird.noInstall') === '1') return '';
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  let body;
+  if (installEvt) body = '<p>ثبّتي التطبيق على تلفونك باش تفتحيه كيف أي تطبيق وتوصلك التنبيهات.</p><button class="primary" data-act="install">تثبيت التطبيق</button>';
+  else if (ios) body = '<p>باش تثبّتيه في iPhone: افتحي الرابط في Safari، اضغطي على زر المشاركة (Share) ثم «إضافة إلى الشاشة الرئيسية».</p>';
+  else return '';
+  return `<section class="card install"><div class="card-h"><b>ثبّتي التطبيق</b><button class="link" data-act="install-x" aria-label="إخفاء">✕</button></div><div class="card-b">${body}</div></section>`;
+}
+
 function notifCard() {
   const supported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -147,6 +163,8 @@ function viewHome() {
   const pct = total ? Math.round((done / total) * 100) : 0;
   const p = dateParts(today);
   let h = `<div class="bar-top"><button class="link who-btn" data-act="profile"><span class="ltr">@${esc(meM?.handle ?? '')}</span> · ملفّي</button><button class="link" data-act="logout">خروج</button></div>`;
+
+  h += installBanner();
 
   h += `<section class="hero"><span class="date num">${WEEKDAYS[p.wd]} ${p.d} ${MONTHS[p.m - 1]}</span>`;
   if (info.before) h += `<h1>الورد يبدأ يوم ${esc(cfg.start_date)}</h1>`;
@@ -393,6 +411,8 @@ $app.addEventListener('click', async (e) => {
   else if (a === 'push-off') disablePush();
   else if (a === 'copy') copyOut();
   else if (a === 'admin') openAdmin();
+  else if (a === 'install') { if (installEvt) { installEvt.prompt(); await installEvt.userChoice.catch(() => {}); installEvt = null; render(); } }
+  else if (a === 'install-x') { ls.set('wird.noInstall', '1'); render(); }
   else if (a === 'home') { S.view = 'home'; render(); }
   else if (a === 'profile') { S.view = 'profile'; S.pm = null; render(); window.scrollTo(0, 0); }
   else if (a === 'pm') { S.pm = el.dataset.ym; render(); }

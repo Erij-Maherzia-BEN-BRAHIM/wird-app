@@ -148,3 +148,5 @@ pre.out{unicode-bidi:plaintext;text-align:start;margin:0;padding:14px 16px;white
 .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-inline-start:4px}
 .legend i.on{background:var(--done)}.legend i.rest{background:var(--rest)}
 .quote{margin:4px 0 0;text-align:center;color:var(--muted);font-size:13px;font-family:var(--f-display)}
+
+.install{border-color:var(--rose)}
