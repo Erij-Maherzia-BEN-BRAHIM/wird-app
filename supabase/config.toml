@@ -1,0 +1,8 @@
+project_id = "wird-app"
+
+# These functions do their own auth (member token / admin key / cron secret).
+[functions.api]
+verify_jwt = false
+
+[functions.reminder]
+verify_jwt = false

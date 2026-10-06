@@ -1,0 +1,37 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  site:
+    name: Site → Netlify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy web/ to production
+        run: npx --yes netlify-cli@latest deploy --dir=web --prod --no-build --message "$GITHUB_SHA"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: 0b8216d5-0585-4ac8-858c-f75020a04636
+
+  functions:
+    name: Functions → Supabase
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Deploy edge functions
+        run: |
+          supabase functions deploy api --project-ref lhfeydrxunxaaxlgfpef --no-verify-jwt
+          supabase functions deploy reminder --project-ref lhfeydrxunxaaxlgfpef --no-verify-jwt
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
