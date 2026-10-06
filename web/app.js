@@ -169,11 +169,6 @@ function viewHome() {
     }
   }
 
-  const vi = virtueOf(Math.max(0, diffDays(today, cfg.start_date)));
-  h += `<section class="card virtue"><div class="card-h"><b>فضل المداومة على سورة البقرة</b></div>
-    <div class="card-b"><p class="hadith">«${vi.t}»</p><small class="src">${vi.s}</small>
-    <details><summary>أحاديث أخرى</summary>${VIRTUES.filter((v) => v !== vi).map((v) => `<p class="hadith">«${v.t}»<small class="src"> · ${v.s}</small></p>`).join('')}</details></div></section>`;
-
   const sub = myN === 0 ? 'ابدئي streak جديد اليوم'
     : st ? `${myN} ${myN > 10 ? 'يوم' : 'أيام'} متتالية`
       : `${myN} ${myN > 10 ? 'يوم' : 'أيام'} متتالية. كمّلي اليوم باش ما يضيعش.`;
@@ -191,6 +186,12 @@ function viewHome() {
     <div class="bar"><i style="width:${pct}%"></i></div></section>`;
   if (total && done === total) h += '<div class="all">كلّهن كمّلن ورد هذا اليوم ✨</div>';
 
+  const vi = virtueOf(Math.max(0, diffDays(today, cfg.start_date)));
+  h += `<section class="card virtue"><div class="card-h"><b>فضل المداومة على سورة البقرة</b></div>
+    <div class="card-b"><p class="hadith">«${vi.t}»</p><small class="src">${vi.s}</small>
+    <details><summary>أحاديث أخرى</summary>${VIRTUES.filter((v) => v !== vi).map((v) => `<p class="hadith">«${v.t}»<small class="src"> · ${v.s}</small></p>`).join('')}</details></div></section>`;
+
+
   h += '<section class="card"><div class="card-h"><b>الصحبة</b><span>آخر 7 أيام · streak</span></div>';
   members.forEach((m) => { h += rowHtml(m, today, cfg, d.me); });
   h += '</section>';
@@ -198,9 +199,9 @@ function viewHome() {
   h += notifCard();
 
   const text = buildText({ config: cfg, members, idx: S.idx, today, date: today, withStreak: S.withStreak });
-  h += `<section class="card"><div class="card-h"><b>نص لمجموعة إنستغرام</b></div><pre class="out" id="out">${esc(text)}</pre>
+  h += `<details class="card igtext"${S.igOpen ? ' open' : ''}><summary>نص لمجموعة إنستغرام</summary><pre class="out" id="out">${esc(text)}</pre>
     <div class="acts"><label class="chk"><input type="checkbox" id="ws"${S.withStreak ? ' checked' : ''}> أضف 🔥 للي عندهم يومين فما فوق</label>
-    <button class="ghost" data-act="copy" id="copyBtn">نسخ</button></div></section>`;
+    <button class="ghost" data-act="copy" id="copyBtn">نسخ</button></div></details>`;
 
   h += '<div class="foot"><button class="link" data-act="admin">الأدمين</button></div>';
   return h;
@@ -264,6 +265,7 @@ function render() {
 
 /* ---------- actions ---------- */
 async function finish(status) {
+  try { if (status === 1 && navigator.vibrate) navigator.vibrate(30); } catch { /* ignore */ }
   const d = S.data; const today = d.today;
   S.note = '';
   const before = d.checkins.slice();
@@ -422,6 +424,8 @@ async function refreshIfVisible() {
 }
 document.addEventListener('visibilitychange', refreshIfVisible);
 setInterval(refreshIfVisible, 45_000);
+
+$app.addEventListener('toggle', (e) => { if (e.target.classList?.contains('igtext')) S.igOpen = e.target.open; }, true);
 
 async function boot() {
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
