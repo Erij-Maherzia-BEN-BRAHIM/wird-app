@@ -1,6 +1,7 @@
 import { API_URL, VAPID_PUBLIC_KEY } from './config.js';
+import { VIRTUES, INTENTION, virtueOf } from './virtues.js';
 import {
-  MONTHS, WEEKDAYS, addDays, dateParts, indexMarks, markOf, streakAt, dayInfo, buildText,
+  MONTHS, WEEKDAYS, addDays, diffDays, dateParts, indexMarks, markOf, streakAt, dayInfo, buildText,
 } from './logic.js';
 
 const $app = document.getElementById('app');
@@ -157,6 +158,22 @@ function viewHome() {
   }
   h += '</section>';
 
+  if (!info.before) {
+    if (st === 1) {
+      h += `<section class="niya done"><b>احتسبي أجرك عند الله</b>
+        <p class="ayah">${INTENTION.accept}<small>${INTENTION.acceptSrc}</small></p></section>`;
+    } else {
+      h += `<section class="niya"><b>جدّدي نيّتك قبل ما تبدأي</b>
+        <p>${INTENTION.renew}</p>
+        <small>«${INTENTION.t}» · ${INTENTION.s}</small></section>`;
+    }
+  }
+
+  const vi = virtueOf(Math.max(0, diffDays(today, cfg.start_date)));
+  h += `<section class="card virtue"><div class="card-h"><b>فضل المداومة على سورة البقرة</b></div>
+    <div class="card-b"><p class="hadith">«${vi.t}»</p><small class="src">${vi.s}</small>
+    <details><summary>أحاديث أخرى</summary>${VIRTUES.filter((v) => v !== vi).map((v) => `<p class="hadith">«${v.t}»<small class="src"> · ${v.s}</small></p>`).join('')}</details></div></section>`;
+
   const sub = myN === 0 ? 'ابدئي streak جديد اليوم'
     : st ? `${myN} ${myN > 10 ? 'يوم' : 'أيام'} متتالية`
       : `${myN} ${myN > 10 ? 'يوم' : 'أيام'} متتالية. كمّلي اليوم باش ما يضيعش.`;
@@ -177,14 +194,6 @@ function viewHome() {
   h += '<section class="card"><div class="card-h"><b>الصحبة</b><span>آخر 7 أيام · streak</span></div>';
   members.forEach((m) => { h += rowHtml(m, today, cfg, d.me); });
   h += '</section>';
-
-  const ranked = members.map((m) => ({ h: m.handle, n: streakAt(S.idx, cfg.start_date, today, m.id, today) }))
-    .filter((x) => x.n >= 2).sort((a, b) => b.n - a.n).slice(0, 3);
-  if (ranked.length) {
-    h += '<section class="card"><div class="card-h"><b>أطول streak</b></div>';
-    ranked.forEach((x, i) => { h += `<div class="t3"><span class="rk num">${i + 1}</span><span class="who">@${esc(x.h)}</span><span class="fl hot num">${ICON_FLAME}${x.n}</span></div>`; });
-    h += '</section>';
-  }
 
   h += notifCard();
 

@@ -1,6 +1,6 @@
 // Service worker: shows push notifications and keeps the app shell available offline.
-const CACHE = 'wird-shell-v1';
-const SHELL = ['./', 'index.html', 'app.js', 'logic.js', 'config.js', 'style.css', 'manifest.webmanifest', 'icon-192.png'];
+const CACHE = 'wird-shell-v2';
+const SHELL = ['./', 'index.html', 'app.js', 'logic.js', 'virtues.js', 'config.js', 'style.css', 'manifest.webmanifest', 'icon-192.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));

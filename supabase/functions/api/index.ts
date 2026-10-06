@@ -23,7 +23,7 @@ async function notifyOthers(actorId: string, today: string) {
     targets,
     {
       title: "ورد اليوم 🌸",
-      body: `@${actor.handle} كمّلت ورد اليوم (${done}/${all.length}) — دورك!`,
+      body: `${done} من ${all.length} كمّلن ورد اليوم. جدّدي نيّتك وكمّلي، واحتسبي الأجر عند الله 🌸`,
       tag: "wird-friend",
     },
     60, // at most one friend-push per device per hour

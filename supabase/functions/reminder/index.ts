@@ -21,7 +21,7 @@ Deno.serve(async (req) => {
   const targets = (members ?? []).filter((m) => !done.has(m.id)).map((m) => m.id);
   const res = await notifyMembers(targets, {
     title: "ورد اليوم 🌸",
-    body: "باقي وقت تكمّلي ورد اليوم وتحافظي على الـ streak 🔥",
+    body: "جدّدي نيّتك واحتسبي الأجر، ورد اليوم من سورة البقرة ينتظرك",
     tag: "wird-reminder",
   });
   return json({ reminded: res.sent });

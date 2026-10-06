@@ -106,3 +106,16 @@ pre.out{unicode-bidi:plaintext;text-align:start;margin:0;padding:14px 16px;white
 .rr input{width:90px}
 .foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:13px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.niya{background:var(--rose-soft);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.niya b{font-family:var(--f-display);font-size:18px;color:var(--rose)}
+.niya p{margin:0;font-size:15px;line-height:1.9}
+.niya small,.virtue .src{color:var(--muted);font-size:12px}
+.niya.done{background:var(--done-soft)}
+.niya.done b{color:var(--done)}
+.niya .ayah{font-family:var(--f-display);font-size:18px}
+.niya .ayah small{display:block}
+.virtue .hadith{margin:0;font-family:var(--f-display);font-size:17px;line-height:2;color:var(--ink)}
+.virtue details{margin-top:6px}
+.virtue summary{cursor:pointer;color:var(--rose);font-size:13px}
+.virtue details .hadith{font-size:15px;margin-top:8px}
