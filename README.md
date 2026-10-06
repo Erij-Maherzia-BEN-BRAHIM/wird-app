@@ -84,12 +84,8 @@ Upload the `web/` folder to any HTTPS static host (Cloudflare Pages, Netlify, Gi
 cd web && npx serve .
 ```
 
-## CI/CD (GitHub Actions)
+## CI/CD
 
-Every push to `main` deploys the site (`web/` → Netlify) and the edge functions (→ Supabase).
-One-time setup in the GitHub repo → Settings → Secrets and variables → Actions:
-
-- `NETLIFY_AUTH_TOKEN`: Netlify → User settings → Applications → Personal access tokens
-- `SUPABASE_ACCESS_TOKEN`: https://supabase.com/dashboard/account/tokens
-
-Database migrations are not run by the pipeline; apply them manually.
+- **Site:** Netlify is linked to this repo; every push to `main` publishes `web/` (see `netlify.toml`).
+- **Edge functions:** GitHub Actions (`.github/workflows/deploy.yml`) deploys `api` and `reminder` to Supabase on every push to `main`. Needs the repo secret `SUPABASE_ACCESS_TOKEN` (https://supabase.com/dashboard/account/tokens).
+- Database migrations are not run by the pipeline; apply them manually.

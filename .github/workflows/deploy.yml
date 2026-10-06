@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy functions
 
 on:
   push:
@@ -10,17 +10,6 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  site:
-    name: Site → Netlify
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Deploy web/ to production
-        run: npx --yes netlify-cli@latest deploy --dir=web --prod --no-build --message "$GITHUB_SHA"
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: 0b8216d5-0585-4ac8-858c-f75020a04636
-
   functions:
     name: Functions → Supabase
     runs-on: ubuntu-latest
