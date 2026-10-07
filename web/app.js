@@ -1,7 +1,7 @@
 import { API_URL, VAPID_PUBLIC_KEY } from './config.js';
 import { VIRTUES, INTENTION, virtueOf } from './virtues.js';
 import {
-  MONTHS, WEEKDAYS, addDays, diffDays, dateParts, indexMarks, markOf, streakAt, dayInfo, buildText, statsFor, monthCells,
+  MONTHS, WEEKDAYS, addDays, diffDays, dateParts, indexMarks, markOf, streakAt, dayInfo, buildText, statsFor, monthCells, shareText,
 } from './logic.js';
 
 const $app = document.getElementById('app');
@@ -180,6 +180,10 @@ function viewHome() {
     if (st === 1) {
       h += `<section class="niya done"><b>احتسبي أجرك عند الله</b>
         <p class="ayah">${INTENTION.accept}<small>${INTENTION.acceptSrc}</small></p></section>`;
+      const msg = shareText(cfg, today);
+      if (msg) h += `<section class="card sharemsg"><div class="card-h"><b>رسالة جاهزة للمجموعة</b><span>انسخيها والصقيها في إنستغرام</span></div>
+        <pre class="out" id="msg">${esc(msg)}</pre>
+        <div class="acts"><button class="primary" data-act="copy-msg" id="copyMsgBtn">نسخ الرسالة</button>${navigator.share ? '<button class="ghost" data-act="share-msg">مشاركة</button>' : ''}</div></section>`;
     } else {
       h += `<section class="niya"><b>جدّدي نيّتك قبل ما تبدأي</b>
         <p>${INTENTION.renew}</p>
@@ -357,6 +361,22 @@ async function disablePush() {
   render();
 }
 
+function copyMsg() {
+  const text = shareText(S.data.config, S.data.today);
+  const btn = document.getElementById('copyMsgBtn');
+  const flash = (m) => { if (btn) { btn.textContent = m; setTimeout(() => { const b = document.getElementById('copyMsgBtn'); if (b) b.textContent = 'نسخ الرسالة'; }, 1800); } };
+  const fallback = () => {
+    const el = document.getElementById('msg');
+    if (el) { const r = document.createRange(); r.selectNodeContents(el); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); }
+    flash('حدّدت النص، انسخيه');
+  };
+  if (navigator.clipboard?.writeText) navigator.clipboard.writeText(text).then(() => flash('تمّ النسخ ✓'), fallback); else fallback();
+}
+function shareMsg() {
+  const text = shareText(S.data.config, S.data.today);
+  navigator.share({ text }).catch(() => { /* cancelled */ });
+}
+
 function copyOut() {
   const d = S.data;
   const text = buildText({ config: d.config, members: d.members, idx: S.idx, today: d.today, date: d.today, withStreak: S.withStreak });
@@ -410,6 +430,8 @@ $app.addEventListener('click', async (e) => {
   else if (a === 'push-on') enablePush();
   else if (a === 'push-off') disablePush();
   else if (a === 'copy') copyOut();
+  else if (a === 'copy-msg') copyMsg();
+  else if (a === 'share-msg') shareMsg();
   else if (a === 'admin') openAdmin();
   else if (a === 'install') { if (installEvt) { installEvt.prompt(); await installEvt.userChoice.catch(() => {}); installEvt = null; render(); } }
   else if (a === 'install-x') { ls.set('wird.noInstall', '1'); render(); }

@@ -150,3 +150,6 @@ pre.out{unicode-bidi:plaintext;text-align:start;margin:0;padding:14px 16px;white
 .quote{margin:4px 0 0;text-align:center;color:var(--muted);font-size:13px;font-family:var(--f-display)}
 
 .install{border-color:var(--rose)}
+
+.sharemsg .acts{justify-content:flex-start}
+.sharemsg .acts .primary{width:auto;padding-inline:20px}
