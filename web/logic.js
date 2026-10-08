@@ -107,8 +107,5 @@ export function shareText(config, date) {
   const head = n === 3
     ? `أتممتُ بفضل الله قراءة الثلث ${ord} من سورة ${surah} 🤍`
     : `أتممتُ بفضل الله قراءة ورد اليوم (${info.label}) من سورة ${surah} 🤍`;
-  const lines = [head];
-  if (info.range) lines.push(`من الآية ${info.range.f} إلى الآية ${info.range.t}`);
-  lines.push('تقبّل الله منّا ومنكم 🌸');
-  return lines.join('\n');
+  return head;
 }
